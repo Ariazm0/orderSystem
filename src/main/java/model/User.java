@@ -8,10 +8,10 @@ package model;
  * Time: 14:30
  */
 public class User {
-    public int userId;
-    public String name;
-    public String password;
-    public int isAdmin;
+    private int userId;
+    private String name;
+    private String password;
+    private int isAdmin;
 
     public int isAdmin() {
         return isAdmin;

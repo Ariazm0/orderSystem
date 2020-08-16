@@ -14,7 +14,7 @@ import java.sql.SQLException;
  * Date: 2020-08-14
  * Time: 16:09
  */
-public class userDao {
+public class UserDao {
 
     //注册功能
     public int register(User user) throws OrderSystemException{
@@ -24,9 +24,9 @@ public class userDao {
         String sql = "insert into user values (null,?,?,?)";
         try {
             statement = connection.prepareStatement(sql);
-            statement.setString(1,user.name);
-            statement.setString(2,user.password);
-            statement.setInt(3,user.isAdmin);
+            statement.setString(1,user.getName());
+            statement.setString(2,user.getName());
+            statement.setInt(3,user.isAdmin());
             int ret = statement.executeUpdate();
             if (ret == 1) {
                 return ret;

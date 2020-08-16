@@ -11,15 +11,28 @@ name varchar(50) unique ,
 password varchar(50) ,
 isAdmin int);
 
-drop table if exists dish;
-create table dish(dishId int primary key auto_increment,
+drop table if exists dishes;
+create table dishes(dishId int primary key auto_increment,
 name varchar (50),
 price int);
 
-drop table if exists orders;
-create table orders (orderId int primary key auto_increment,
-user_id int,
-dish_id int);
+
+drop table if exists order_user;
+create table order_user (
+    orderId int primary key auto_increment,
+    userId int,    -- 这个用户 id 需要和 user 表中的 userId 具有关联关系
+    time datetime, -- 下单时间
+    isDone int,    -- 1 表示订单完结, 0 表示订单未完结.
+    foreign key(userId) references user(userId)
+);
+
+drop table if exists order_dish;
+create table order_dish (
+    orderId int,   -- orderId 也和 order_user 表的 orderId 字段有外键关系
+    dishId int,    -- dishId 也和 dishes 表中的 dishId 存在外键关系
+    foreign key(orderId) references order_user(userId),
+    foreign key(dishId) references dishes(dishId)
+);
 
 insert into user (name,password,isAdmin)
 values ("Ariazm",110,0);

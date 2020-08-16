@@ -3,10 +3,6 @@ package model;
 import org.junit.Test;
 import util.OrderSystemException;
 
-import java.io.ObjectStreamException;
-
-import static org.junit.Assert.*;
-
 /**
  * Created with IntelliJ IDEA.
  * Description:
@@ -22,7 +18,7 @@ public class userDaoTest {
         user.setAdmin(0);
         user.setName("张蜜");
         user.setPassword("1100");
-        userDao userDao = new userDao();
+        UserDao userDao = new UserDao();
         int ret = userDao.register(user);
         System.out.println(ret);
     }
@@ -30,7 +26,7 @@ public class userDaoTest {
     @Test
     public void login() throws OrderSystemException {
         String name = "张蜜";
-        userDao userDao = new userDao();
+        UserDao userDao = new UserDao();
         User user = userDao.login(name);
         System.out.println(user);
     }
@@ -38,7 +34,7 @@ public class userDaoTest {
     @Test
     public void selectById() throws OrderSystemException{
         int userId = 1;
-        userDao userDao = new userDao();
+        UserDao userDao = new UserDao();
         User user = userDao.selectById(userId);
         System.out.println(user);
     }

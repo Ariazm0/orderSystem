@@ -8,9 +8,9 @@ package model;
  * Time: 14:36
  */
 public class Dish {
-    public int dishId;
-    public String name;
-    public int price;
+    private int dishId;
+    private String name;
+    private int price;
 
     public int getDishId() {
         return dishId;
