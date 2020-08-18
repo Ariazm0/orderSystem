@@ -21,7 +21,7 @@ import java.sql.SQLException;
 public class DBUtil {
     public static final String URL = "jdbc:mysql://127.0.0.1:3306/orderSystem?characterEncoding=utf-8&useSSL=true";
     public static final String NAME = "root";
-    public static final String PASSWORD = "110603";
+    public static final String PASSWORD = "";
 
     public static DataSource dataSource = null;
 

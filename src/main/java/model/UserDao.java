@@ -25,8 +25,8 @@ public class UserDao {
         try {
             statement = connection.prepareStatement(sql);
             statement.setString(1,user.getName());
-            statement.setString(2,user.getName());
-            statement.setInt(3,user.isAdmin());
+            statement.setString(2,user.getPassword());
+            statement.setInt(3,user.getIsAdmin());
             int ret = statement.executeUpdate();
             if (ret == 1) {
                 return ret;
@@ -54,7 +54,7 @@ public class UserDao {
                 user.setUserId(rs.getInt("userId"));
                 user.setName(rs.getString("name"));
                 user.setPassword(rs.getString("password"));
-                user.setAdmin(rs.getInt("isAdmin"));
+                user.setIsdmin(rs.getInt("isAdmin"));
                 System.out.println("登录成功");
                 return user;
             }
@@ -82,7 +82,7 @@ public class UserDao {
                 user.setUserId(rs.getInt("userId"));
                 user.setName(rs.getString("name"));
                 user.setPassword(rs.getString("password"));
-                user.setAdmin(rs.getInt("isAdmin"));
+                user.setIsdmin(rs.getInt("isAdmin"));
                 System.out.println("查找成功");
                 return user;
             }

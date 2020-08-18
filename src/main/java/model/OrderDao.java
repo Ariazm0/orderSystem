@@ -1,11 +1,13 @@
 package model;
 
+import com.sun.org.apache.xpath.internal.operations.Or;
 import util.OrderSystemException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -107,6 +109,145 @@ public class OrderDao {
         } finally {
             DBUtil.close(connection,statement,null);
         }
+    }
+
+    public List<Order> selectAll() throws OrderSystemException {
+        Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        String sql = "select * from order_user";
+        List<Order> orders = new ArrayList<>();
+        try {
+            statement = connection.prepareStatement(sql);
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                Order order = new Order();
+                order.setOrderId(rs.getInt("orderId"));
+                order.setIsDone(rs.getInt("isDone"));
+                order.setUserId(rs.getInt("userId"));
+                order.setTime(rs.getTimestamp("time"));
+                orders.add(order);
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+            throw new OrderSystemException("查询所有菜单失败");
+        }finally {
+            DBUtil.close(connection,statement,rs);
+        }
+        return orders;
+    }
+
+    public List<Order> selectByUserId(int userId) {
+        List<Order> orders = new ArrayList<>();
+        Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        String sql = "select * from order_user where userId = ?";
+        try {
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1,userId);
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                Order order = new Order();
+                order.setOrderId(rs.getInt("orderId"));
+                order.setIsDone(rs.getInt("isDone"));
+                order.setUserId(rs.getInt("userId"));
+                order.setTime(rs.getTimestamp("time"));
+                orders.add(order);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.close(connection,statement,rs);
+        }
+        return orders;
+    }
+
+    public Order selectById(int orderId) throws OrderSystemException {
+        Order order= buildOrder(orderId);
+        List<Integer> dishIds = selectDishIds(orderId);
+        order = getDishDetail(order,dishIds);
+        return order;
+    }
+
+    public Order buildOrder(int orderId) {
+        Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        Order order = new Order();
+        try {
+            String sql = "select * from order_user where orderId = ?";
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1,orderId);
+            rs  = statement.executeQuery();
+            if (rs.next()) {
+                order.setOrderId(rs.getInt("orderId"));
+                order.setIsDone(rs.getInt("isDone"));
+                order.setUserId(rs.getInt("userId"));
+                order.setTime(rs.getTimestamp("time"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.close(connection,statement,rs);
+        }
+        return order;
+    }
+
+    public List<Integer> selectDishIds(int orderId) {
+        Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        List<Integer> dishIds = new ArrayList<>();
+        String sql = "select * from order_dish where orderId = ?";
+        try {
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1,orderId);
+            rs = statement.executeQuery();
+            while (rs.next()) {
+                dishIds.add(rs.getInt("dishId"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DBUtil.close(connection,statement,rs);
+        }
+        return dishIds;
+    }
+
+    public Order getDishDetail (Order order,List<Integer> dishIds) throws OrderSystemException {
+        List<Dish> dishes = new ArrayList<>();
+        DishDao dishDao = new DishDao();
+        for (Integer dishId:dishIds) {
+            Dish dish = dishDao.selectById(dishId);
+            dishes.add(dish);
+        }
+        order.setDishes(dishes);
+        return order;
+    }
+
+    public void changeState (int orderId,int isDone) throws OrderSystemException {
+        Connection connection = DBUtil.getConnection();
+        PreparedStatement statement = null;
+        String sql = "updata order_user set idDone = ? where orderId = ?";
+        try {
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1,isDone);
+            statement.setInt(2,orderId);
+            int ret = statement.executeUpdate();
+            if (ret != 1) {
+                throw new OrderSystemException("修改订单状态失败");
+            }
+            System.out.println("修改订单状态成功");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new OrderSystemException("修改订单状态失败");
+        } finally {
+            DBUtil.close(connection,statement,null);
+        }
+
     }
 
 }

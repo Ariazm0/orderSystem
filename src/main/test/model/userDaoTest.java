@@ -15,8 +15,8 @@ public class userDaoTest {
     @Test
     public void register() throws OrderSystemException {
         User user = new User();
-        user.setAdmin(0);
-        user.setName("张蜜");
+        user.setIsdmin(0);
+        user.setName("aria");
         user.setPassword("1100");
         UserDao userDao = new UserDao();
         int ret = userDao.register(user);

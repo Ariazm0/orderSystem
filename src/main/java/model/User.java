@@ -13,11 +13,11 @@ public class User {
     private String password;
     private int isAdmin;
 
-    public int isAdmin() {
+    public int getIsAdmin() {
         return isAdmin;
     }
 
-    public void setAdmin(int admin) {
+    public void setIsdmin(int admin) {
         isAdmin = admin;
     }
 
