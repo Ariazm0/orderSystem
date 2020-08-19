@@ -10,14 +10,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-10
- * Time: 15:37
- */
 public class DBUtil {
     public static final String URL = "jdbc:mysql://127.0.0.1:3306/orderSystem?characterEncoding=utf-8&useSSL=true";
     public static final String NAME = "root";

@@ -3,13 +3,6 @@ package model;
 import java.sql.Timestamp;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-14
- * Time: 14:33
- */
 public class Order {
     private int orderId;
     private int userId;

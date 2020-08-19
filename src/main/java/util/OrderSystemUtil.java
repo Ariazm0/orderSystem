@@ -5,13 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-18
- * Time: 14:51
- */
 public class OrderSystemUtil {
     //需要实现读取body的功能
     //需要先把整个body读取出来，然后才能解析json

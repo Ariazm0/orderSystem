@@ -1,12 +1,5 @@
 package model;
 
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-14
- * Time: 14:36
- */
 public class Dish {
     private int dishId;
     private String name;

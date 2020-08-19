@@ -10,13 +10,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-16
- * Time: 17:46
- */
 public class OrderDao {
     //添加订单
     //订单是两个表关联的，分别是order_user和order_dish这两个表

@@ -1,12 +1,5 @@
 package model;
 
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-14
- * Time: 14:30
- */
 public class User {
     private int userId;
     private String name;

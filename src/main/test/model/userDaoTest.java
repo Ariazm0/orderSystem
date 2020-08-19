@@ -3,13 +3,7 @@ package model;
 import org.junit.Test;
 import util.OrderSystemException;
 
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-14
- * Time: 16:44
- */
+
 public class userDaoTest {
 
     @Test

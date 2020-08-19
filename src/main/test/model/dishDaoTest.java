@@ -2,14 +2,6 @@ package model;
 
 import org.junit.Test;
 import util.OrderSystemException;
-
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-16
- * Time: 17:38
- */
 public class dishDaoTest {
 
     @Test

@@ -15,13 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
-/**
- * Created with IntelliJ IDEA.
- * Description:
- * User: Ariazm
- * Date: 2020-08-18
- * Time: 15:42
- */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     private Gson gson = new GsonBuilder().create();
