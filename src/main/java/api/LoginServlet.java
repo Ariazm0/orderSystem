@@ -42,7 +42,7 @@ public class LoginServlet extends HttpServlet {
             Request request = gson.fromJson(body,Request.class);
             //3.按照用户名来查找，并进行密码验证
             UserDao userDao = new UserDao();
-            User user = userDao.login(request.name);
+            User user = userDao.selectByName(request.name);
             if (user == null || !user.getPassword().equals(request.password)) {
                 throw new OrderSystemException("用户名已经存在或者密码错误");
             }

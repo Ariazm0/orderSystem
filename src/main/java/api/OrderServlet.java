@@ -57,7 +57,7 @@ public class OrderServlet extends HttpServlet {
             order.setDishes(dishes);
             OrderDao orderDao = new OrderDao();
             orderDao.add(order);
-            int ok = 1;
+            response.ok = 1;
             response.reason = "";
 
         } catch (OrderSystemException e) {
@@ -74,6 +74,7 @@ public class OrderServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("utf-8");
+        resp.setContentType("application/json; charset=utf-8");
         Response response = new Response();
         List<Order> orders = new ArrayList<>();
         try {
@@ -101,8 +102,7 @@ public class OrderServlet extends HttpServlet {
             } else {
                 //有orderId就查看指定订单
                 int orderId = Integer.parseInt(orderIdStr);
-                Order order = new Order();
-                order = orderDao.selectById(orderId);
+                Order order = orderDao.selectById(orderId);
                 if (user.getIsAdmin() == 0 &&
                         user.getUserId() != order.getUserId()) {
                     throw new OrderSystemException("当前您无法查看他人订单");

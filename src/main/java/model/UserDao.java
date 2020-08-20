@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class UserDao {
 
     //注册功能
-    public int register(User user) throws OrderSystemException{
+    public int add(User user) throws OrderSystemException{
         Connection connection = DBUtil.getConnection();
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -33,7 +33,7 @@ public class UserDao {
         return 0;
     }
      //登录
-    public User login(String name) throws OrderSystemException {
+    public User selectByName(String name) throws OrderSystemException {
         Connection connection = DBUtil.getConnection();
         PreparedStatement statement = null;
         ResultSet rs = null;

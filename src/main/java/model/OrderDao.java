@@ -1,6 +1,5 @@
 package model;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
 import util.OrderSystemException;
 
 import java.sql.Connection;
@@ -28,7 +27,7 @@ public class OrderDao {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            statement = connection.prepareStatement(sql);
+            statement = connection.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS);
             statement.setInt(1,order.getUserId());
             int ret = statement.executeUpdate();
             if (ret != 1) {
@@ -55,7 +54,6 @@ public class OrderDao {
     public void addOrderDish(Order order) throws OrderSystemException {
         Connection connection = DBUtil.getConnection();
         PreparedStatement statement = null;
-        ResultSet rs = null;
         String sql = "insert into order_dish values(?,?)";
         try {
             //关闭自动提交
@@ -80,7 +78,7 @@ public class OrderDao {
             //如果插入出现异常，就认为整体的插入失败，回滚之前的插入order_user 表中的内容
             deleteOrderUser(order.getOrderId());
         } finally {
-            DBUtil.close(connection,statement,rs);
+            DBUtil.close(connection,statement,null);
         }
     }
     public void deleteOrderUser(int orderId) throws OrderSystemException {
@@ -104,7 +102,7 @@ public class OrderDao {
         }
     }
 
-    public List<Order> selectAll() throws OrderSystemException {
+    public List<Order> selectAll() {
         Connection connection = DBUtil.getConnection();
         PreparedStatement statement = null;
         ResultSet rs = null;
@@ -116,14 +114,13 @@ public class OrderDao {
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("orderId"));
-                order.setIsDone(rs.getInt("isDone"));
                 order.setUserId(rs.getInt("userId"));
                 order.setTime(rs.getTimestamp("time"));
+                order.setIsDone(rs.getInt("isDone"));
                 orders.add(order);
             }
         }catch (SQLException e) {
             e.printStackTrace();
-            throw new OrderSystemException("查询所有菜单失败");
         }finally {
             DBUtil.close(connection,statement,rs);
         }
@@ -143,12 +140,12 @@ public class OrderDao {
             while (rs.next()) {
                 Order order = new Order();
                 order.setOrderId(rs.getInt("orderId"));
-                order.setIsDone(rs.getInt("isDone"));
+
                 order.setUserId(rs.getInt("userId"));
                 order.setTime(rs.getTimestamp("time"));
+                order.setIsDone(rs.getInt("isDone"));
                 orders.add(order);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -168,24 +165,26 @@ public class OrderDao {
         Connection connection = DBUtil.getConnection();
         PreparedStatement statement = null;
         ResultSet rs = null;
-        Order order = new Order();
+
         try {
             String sql = "select * from order_user where orderId = ?";
             statement = connection.prepareStatement(sql);
             statement.setInt(1,orderId);
             rs  = statement.executeQuery();
             if (rs.next()) {
+                Order order = new Order();
                 order.setOrderId(rs.getInt("orderId"));
                 order.setIsDone(rs.getInt("isDone"));
                 order.setUserId(rs.getInt("userId"));
                 order.setTime(rs.getTimestamp("time"));
+                return order;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             DBUtil.close(connection,statement,rs);
         }
-        return order;
+        return null;
     }
 
     public List<Integer> selectDishIds(int orderId) {
@@ -210,12 +209,15 @@ public class OrderDao {
     }
 
     public Order getDishDetail (Order order,List<Integer> dishIds) throws OrderSystemException {
+        // 1. 准备好要返回的结果
         List<Dish> dishes = new ArrayList<>();
+        // 2. 遍历 dishIds 在 dishes 表中查.  (前面已经 有现成的方法了, 直接调用.)
         DishDao dishDao = new DishDao();
-        for (Integer dishId:dishIds) {
+        for (Integer dishId : dishIds) {
             Dish dish = dishDao.selectById(dishId);
             dishes.add(dish);
         }
+        // 3. 把 dishes 设置到 order 对象中
         order.setDishes(dishes);
         return order;
     }

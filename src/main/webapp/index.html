@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    <title>点餐系统管理员页面</title>
+    <title>点餐系统</title>
 </head>
 
 <body>
@@ -15,14 +15,27 @@
 
     <v-navigation-drawer v-model="drawer" app>
         <v-list dense v-show="!login.isLogin">
+            <v-list-item link link v-on:click="register.showRegisterDialog=true">
+                <v-list-item-action>
+                    <v-icon>mdi-account-plus</v-icon>
+                </v-list-item-action>
+                <v-list-item-content>
+                    <v-list-item-title>注册</v-list-item-title>
+                </v-list-item-content>
+            </v-list-item>
+
             <v-list-item link v-on:click="login.showLoginDialog=true">
                 <v-list-item-action>
                     <v-icon>mdi-login</v-icon>
                 </v-list-item-action>
                 <v-list-item-content>
-                    <v-list-item-title>登陆</v-list-item-title>
+                    <v-list-item-title>登录</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
+
+            <p>&nbsp;</p>
+            <a href="admin.html" style="color: #000; font-size:13px; text-decoration: none;">&nbsp;&nbsp;&nbsp;&nbsp;管理员登录</a>
+
         </v-list>
 
         <v-list dense v-show="login.isLogin">
@@ -31,7 +44,7 @@
                     <v-icon>mdi-account</v-icon>
                 </v-list-item-action>
                 <v-list-item-content>
-                    <v-list-item-title>{{user.name}} 管理员您好!</v-list-item-title>
+                    <v-list-item-title>{{user.name}} 您好!</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
             <v-list-item link v-on:click="getDishes()">
@@ -39,15 +52,15 @@
                     <v-icon>mdi-cart-outline</v-icon>
                 </v-list-item-action>
                 <v-list-item-content>
-                    <v-list-item-title>查看菜品</v-list-item-title>
+                    <v-list-item-title>我要点菜</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
-            <v-list-item link v-on:click="showAllOrders()">
+            <v-list-item link v-on:click="showMyOrders()">
                 <v-list-item-action>
                     <v-icon>mdi-cart-outline</v-icon>
                 </v-list-item-action>
                 <v-list-item-content>
-                    <v-list-item-title>查看订单</v-list-item-title>
+                    <v-list-item-title>我的订单</v-list-item-title>
                 </v-list-item-content>
             </v-list-item>
             <v-list-item link v-on:click="logout()">
@@ -73,7 +86,7 @@
                     <tr>
                         <th class="text-left">菜名</th>
                         <th class="text-left">价格</th>
-                        <th class="text-left">操作</th>
+                        <th class="text-left">选择</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -85,7 +98,7 @@
                             <v-icon>mdi-cash</v-icon> {{ dish.price }}
                         </td>
                         <td>
-                            <v-btn color="primary" v-on:click="deleteDish(dish.dishId)">删除</v-btn>
+                            <v-switch v-model="dish.isSelected"></v-switch>
                         </td>
                     </tr>
                     </tbody>
@@ -93,13 +106,14 @@
             </v-simple-table>
             <v-row v-show="status == 'dishesPage' && login.isLogin">
                 <v-col :col="11">
+                    <div class="pa-2">已点 {{selectedDishCount}} 道菜, 总计 {{selectedDishPrice}} 元</div>
                 </v-col>
                 <v-col :cols="2">
-                    <v-btn color="primary" block v-on:click="showAddDish = true">新增菜品</v-btn>
+                    <v-btn color="primary" block v-on:click="postOrder()">下单</v-btn>
                 </v-col>
             </v-row>
 
-            <!-- 需要新增区域显示订单列表 -->
+            <!-- TODO 需要新增区域显示订单列表 -->
             <v-simple-table v-show="status == 'ordersPage' && login.isLogin">
                 <template v-slot:default>
                     <thead>
@@ -115,10 +129,7 @@
                     <tr v-for="order in orders">
                         <td>{{order.orderId}}</td>
                         <td>{{order.userId}}</td>
-                        <td>
-                            <v-switch v-model="order.isDone"
-                                      v-on:change="changeStatus(order.orderId, order.isDone)"></v-switch>
-                        </td>
+                        <td>{{order.isDone}}</td>
                         <td>{{order.time}}</td>
                         <td>
                             <v-btn color='primary' v-on:click='getOrderDetail(order.orderId)'>查看详情</v-btn>
@@ -133,6 +144,8 @@
                     <v-card class="pa-2 text-center">请先登陆!</v-card>
                 </v-col>
             </v-row>
+
+
             <v-row justify="center">
                 <v-dialog v-model="login.showLoginDialog" persistent max-width="400px">
                     <v-card>
@@ -143,14 +156,12 @@
                             <v-container>
                                 <v-row>
                                     <v-col cols="12" sm="12">
-                                        <v-text-field label="用户名*" v-model="login.inputUsername" required>
-                                        </v-text-field>
+                                        <v-text-field label="用户名*" v-model="login.inputUsername" required></v-text-field>
                                     </v-col>
                                 </v-row>
                                 <v-row>
                                     <v-col cols="12" sm="12">
-                                        <v-text-field label="密码*" v-model="login.inputPassword" required>
-                                        </v-text-field>
+                                        <v-text-field label="密码*" v-model="login.inputPassword" required></v-text-field>
                                     </v-col>
                                 </v-row>
                                 <v-row>
@@ -158,8 +169,7 @@
                                         <v-btn color="primary" block v-on:click="loginAccount()">登陆</v-btn>
                                     </v-col>
                                     <v-col cols="12" sm="6">
-                                        <v-btn color="primary" block v-on:click="login.showLoginDialog = false">取消
-                                        </v-btn>
+                                        <v-btn color="primary" block v-on:click="login.showLoginDialog = false">取消</v-btn>
                                     </v-col>
                                 </v-row>
                             </v-container>
@@ -167,6 +177,41 @@
                     </v-card>
                 </v-dialog>
             </v-row>
+
+            <!--            注册对话框-->
+            <v-row justify="center">
+                <v-dialog v-model="register.showRegisterDialog" persistent max-width="400px">
+                    <v-card>
+                        <v-card-title>
+                            <span class="headline">注册</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-container>
+                                <v-row>
+                                    <v-col cols="12" sm="12">
+                                        <v-text-field label="用户名*" v-model="register.inputUsername" required></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" sm="12">
+                                        <v-text-field label="密码*" v-model="register.inputPassword" required></v-text-field>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" sm="6">
+                                        <v-btn color="primary" block v-on:click="registerAccount()">注册</v-btn>
+                                    </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-btn color="primary" block v-on:click="register.showRegisterDialog = false">取消</v-btn>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                    </v-card>
+                </v-dialog>
+            </v-row>
+
+
             <v-row justify="center">
                 <v-dialog v-model="showCurOrder" persistent max-width="600px">
                     <v-simple-table>
@@ -193,38 +238,8 @@
                     </v-simple-table>
                 </v-dialog>
             </v-row>
-            <v-row justify="center">
-                <v-dialog v-model="showAddDish" persistent max-width="600px">
-                    <v-card>
-                        <v-card-title>
-                            <span class="headline">新增菜品</span>
-                        </v-card-title>
-                        <v-card-text>
-                            <v-container>
-                                <v-row>
-                                    <v-col cols="12" sm="12">
-                                        <v-text-field label="菜品名*" v-model="newDish.name" required></v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" sm="12">
-                                        <v-text-field label="价格(元)*" v-model="newDish.price" required>
-                                        </v-text-field>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="12" sm="6">
-                                        <v-btn color="primary" block v-on:click="addDish()">新增</v-btn>
-                                    </v-col>
-                                    <v-col cols="12" sm="6">
-                                        <v-btn color="primary" block v-on:click="showAddDish = false">取消</v-btn>
-                                    </v-col>
-                                </v-row>
-                            </v-container>
-                        </v-card-text>
-                    </v-card>
-                </v-dialog>
-            </v-row>
+
+
         </v-content>
     </v-app>
 </div>
@@ -244,6 +259,12 @@
             login: {
                 isLogin: false,
                 showLoginDialog: false,
+                inputUsername: "",
+                inputPassword: "",
+            },
+            register: {
+                isRegister: false,
+                showRegisterDialog: false,
                 inputUsername: "",
                 inputPassword: "",
             },
@@ -275,12 +296,6 @@
             // 辅助实现订单显示详情
             showCurOrder: false,
             curOrder: {},
-            // 实现显示新增菜品窗口
-            showAddDish: false,
-            newDish: {
-                name: "",
-                price: 0,
-            },
         },
         methods: {
             loginAccount() {
@@ -298,15 +313,30 @@
                             app.login.isLogin = false;
                             return;
                         }
-                        if (data.isAdmin == 0) {
-                            alert('登陆失败! 您不是管理员!');
-                            app.login.isLogin = false;
-                            return;
-                        }
                         app.user.name = data.name;
                         app.user.isAdmin = data.isAdmin;
                         app.login.isLogin = true;
                         app.login.showLoginDialog = false;
+                    }
+                })
+            },
+            registerAccount() {
+                console.log("register");
+                $.ajax({
+                    url: 'register',
+                    type: 'post',
+                    data: JSON.stringify({
+                        name: app.register.inputUsername,
+                        password: app.register.inputPassword,
+                    }),
+                    success: function (data, status) {
+                        if (data.ok != 1) {
+                            alert('注册失败! ' + data.reason);
+                            app.register.isRegister = false;
+                            return;
+                        }
+                        alert('注册成功!');
+                        window.location.reload();
                     }
                 })
             },
@@ -336,11 +366,6 @@
                             app.user.isAdmin = null;
                             return;
                         }
-                        if (data.isAdmin == 0) {
-                            alert('登陆失败! 您不是管理员!');
-                            app.login.isLogin = false;
-                            return;
-                        }
                         // 已经登陆
                         app.login.isLogin = true;
                         app.user.name = data.name;
@@ -360,8 +385,8 @@
                     }
                 })
             },
-            showAllOrders() {
-                console.log("showAllOrders");
+            showMyOrders() {
+                console.log("showMyOrders");
                 $.ajax({
                     url: 'order',
                     type: 'get',
@@ -376,9 +401,9 @@
                 dishIds = [];
                 app.dishes.forEach(dish => {
                     if (dish.isSelected) {
-                    dishIds.push(dish.dishId);
-                }
-            });
+                        dishIds.push(dish.dishId);
+                    }
+                });
                 $.ajax({
                     url: 'order',
                     type: 'post',
@@ -406,57 +431,29 @@
                 let total = 0;
                 this.curOrder.dishes.forEach((dish) => {
                     total += dish.price;
-            });
+                });
                 return total;
-            },
-            addDish() {
-                console.log("addDish");
-                $.ajax({
-                    type: 'post',
-                    url: 'dish',
-                    data: JSON.stringify(app.newDish),
-                    success: function(data, status) {
-                        if (data.ok != 1) {
-                            alert("新增菜品失败! " + data.reason);
-                            return;
-                        }
-                        app.getDishes();
-                        alert("新增菜品成功!");
-                        app.showAddDish = false;
-                    }
-                })
-            },
-            deleteDish(dishId) {
-                console.log("deleteDish");
-                $.ajax({
-                    type: 'delete',
-                    url: 'dish?dishId=' + dishId,
-                    success: function(data, status) {
-                        if (data.ok != 1) {
-                            alert("删除菜品失败! " + data.reason);
-                            return;
-                        }
-                        app.getDishes();
-                        alert("删除菜品成功!");
-                    }
-                })
-            },
-            changeStatus(orderId, isDone) {
-                console.log("changeStatus");
-                $.ajax({
-                    type: 'put',
-                    url: 'order?orderId=' + orderId + "&isDone=" + (isDone ? 1 : 0),
-                    success: function(data, status) {
-                        if (data.ok != 1) {
-                            alert("状态更新失败! " + data.reason);
-                            return;
-                        }
-                        alert("状态更新成功!");
-                    }
-                })
             }
         },
         computed: {
+            selectedDishCount() {
+                let count = 0;
+                this.dishes.forEach(dish => {
+                    if (dish.isSelected) {
+                        count++;
+                    }
+                });
+                return count;
+            },
+            selectedDishPrice() {
+                let price = 0;
+                this.dishes.forEach(dish => {
+                    if (dish.isSelected) {
+                        price += dish.price;
+                    }
+                })
+                return price;
+            }
         },
         vuetify: new Vuetify(),
     });

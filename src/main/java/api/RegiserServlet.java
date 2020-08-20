@@ -39,7 +39,7 @@ public class RegiserServlet extends HttpServlet {
             Request request = gson.fromJson(body,Request.class);
             //3.查看数据库，如果存在提示用户已经被注册
             UserDao userDao = new UserDao();
-            User existUser = userDao.login(request.name);
+            User existUser = userDao.selectByName(request.name);
             if (existUser != null) {
                 throw new OrderSystemException("当前用户名已经存在");
             }
@@ -48,7 +48,7 @@ public class RegiserServlet extends HttpServlet {
             user.setName(request.name);
             user.setPassword(request.password);
             user.setIsdmin(0);
-            userDao.register(user);
+            userDao.add(user);
             response.ok = 1;
             response.reason = "";
         } catch (OrderSystemException e) {
