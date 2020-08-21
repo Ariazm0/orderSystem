@@ -6,14 +6,6 @@ public class User {
     private String password;
     private int isAdmin;
 
-    public int getIsAdmin() {
-        return isAdmin;
-    }
-
-    public void setIsdmin(int admin) {
-        isAdmin = admin;
-    }
-
     public int getUserId() {
         return userId;
     }
@@ -27,7 +19,7 @@ public class User {
     }
 
     public void setName(String name) {
-        this.name =name;
+        this.name = name;
     }
 
     public String getPassword() {
@@ -38,11 +30,19 @@ public class User {
         this.password = password;
     }
 
+    public int getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(int isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "userId=" + userId +
-                ", UserName='" +name + '\'' +
+                ", name='" + name + '\'' +
                 ", password='" + password + '\'' +
                 ", isAdmin=" + isAdmin +
                 '}';

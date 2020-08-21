@@ -13,7 +13,7 @@ public class userDaoTest {
         user.setName("aria");
         user.setPassword("1100");
         UserDao userDao = new UserDao();
-        int ret = userDao.register(user);
+        int ret = userDao.add(user);
         System.out.println(ret);
     }
 
@@ -21,7 +21,7 @@ public class userDaoTest {
     public void login() throws OrderSystemException {
         String name = "张蜜";
         UserDao userDao = new UserDao();
-        User user = userDao.login(name);
+        User user = userDao.selectByName(name);
         System.out.println(user);
     }
 

@@ -8,85 +8,79 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDao {
-
-    //注册功能
-    public int add(User user) throws OrderSystemException{
+    //新增用户
+    public void add(User user) throws OrderSystemException {
         Connection connection = DBUtil.getConnection();
+        String sql = "insert into user values(null, ?, ?, ?)";
         PreparedStatement statement = null;
-        ResultSet rs = null;
-        String sql = "insert into user values (null,?,?,?)";
         try {
             statement = connection.prepareStatement(sql);
-            statement.setString(1,user.getName());
-            statement.setString(2,user.getPassword());
-            statement.setInt(3,user.getIsAdmin());
+            statement.setString(1, user.getPassword());
+            statement.setInt(2, user.getIsAdmin());
+            statement.setString(3, user.getName());
             int ret = statement.executeUpdate();
-            if (ret == 1) {
-                return ret;
+            if (ret != 1) {
+                throw new OrderSystemException("插入用户失败");
             }
-        }catch (SQLException e) {
+            System.out.println("插入用户成功!");
+        } catch (SQLException e) {
             e.printStackTrace();
-            throw new OrderSystemException("注册用户失败");
-        }finally {
-            DBUtil.close(connection,statement,null);
+            throw new OrderSystemException("插入用户失败");
+        } finally {
+            DBUtil.close(connection, statement, null);
         }
-        return 0;
     }
-     //登录
+
     public User selectByName(String name) throws OrderSystemException {
         Connection connection = DBUtil.getConnection();
+        String sql = "select * from user where name = ?";
         PreparedStatement statement = null;
-        ResultSet rs = null;
-        try {
-            String sql = "select * from user where name = ?";
-            statement = connection.prepareStatement(sql);
-            statement.setString(1,name);
-            rs = statement.executeQuery();
-            if (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getInt("userId"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-                user.setIsdmin(rs.getInt("isAdmin"));
-                System.out.println("登录成功");
-                return user;
-            }
-        }catch (SQLException e) {
-            e.printStackTrace();
-            throw new OrderSystemException("登陆失败");
-        }finally {
-            DBUtil.close(connection,statement,rs);
-        }
-        return null;
-    }
-
-    //根据id找用户  展示信息的时候用
-    public User selectById (int userId) throws OrderSystemException{
-        Connection connection = DBUtil.getConnection();
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        String sql = "select * from user where userId = ?";
+        ResultSet resultSet = null;
         try {
             statement = connection.prepareStatement(sql);
-            statement.setInt(1,userId);
-            rs = statement.executeQuery();
-            if (rs.next()) {
+            statement.setString(1, name);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
                 User user = new User();
-                user.setUserId(rs.getInt("userId"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-                user.setIsdmin(rs.getInt("isAdmin"));
-                System.out.println("查找成功");
+                user.setUserId(resultSet.getInt("userId"));
+                user.setName(resultSet.getString("name"));
+                user.setPassword(resultSet.getString("password"));
+                user.setIsAdmin(resultSet.getInt("isAdmin"));
                 return user;
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new OrderSystemException("按照id查找用户失败");
+            throw new OrderSystemException("按姓名查找用户失败");
         } finally {
-            DBUtil.close(connection,statement,rs);
+            DBUtil.close(connection, statement, resultSet);
         }
         return null;
     }
 
+    public User selectById(int userId) throws OrderSystemException {
+        Connection connection = DBUtil.getConnection();
+        String sql = "select * from user where userId = ?";
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, userId);
+            resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                User user = new User();
+                user.setUserId(resultSet.getInt("userId"));
+                user.setName(resultSet.getString("name"));
+                user.setPassword(resultSet.getString("password"));
+                user.setIsAdmin(resultSet.getInt("isAdmin"));
+                return user;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new OrderSystemException("按 id 查找用户失败");
+        } finally {
+            DBUtil.close(connection, statement, resultSet);
+        }
+        return null;
+    }
 
 }
