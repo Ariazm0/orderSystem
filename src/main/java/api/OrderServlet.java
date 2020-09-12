@@ -2,12 +2,15 @@ package api;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import model.Dish;
 import model.Order;
 import model.OrderDao;
 import model.User;
 import util.OrderSystemException;
 import util.OrderSystemUtil;
+
+import javax.jws.soap.SOAPBinding;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -31,7 +34,7 @@ public class OrderServlet extends HttpServlet {
         public String reason;
     }
 
-    // 新增订单(普通用户才能新增, 管理员不能新增)
+    // 对应第 8 个 API, 新增订单. (普通用户才能新增, 管理员不能新增)
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Response response = new Response();
@@ -55,6 +58,7 @@ public class OrderServlet extends HttpServlet {
             String body = OrderSystemUtil.readBody(req);
             // 4. 按照 JSON 格式解析 body
             Integer[] dishIds = gson.fromJson(body, Integer[].class);
+//            List<Integer> dishIds = gson.fromJson(body, new TypeToken<List<Integer>>() {}.getType());
             // 5. 构造订单对象, 此处 orderId, time, isDone, Dish 中的 name, price 这些都不需要填充
             //    不影响订单插入.
             Order order = new Order();
@@ -118,6 +122,10 @@ public class OrderServlet extends HttpServlet {
                 // 3. 查找数据库, 查找指定订单.
                 int orderId = Integer.parseInt(orderIdStr);
                 Order order = orderDao.selectById(orderId);
+                // [此处还可以有个小小的改进]
+                // 如果是普通用户, 查找时发现自身的 userId 和订单的 userId 不相符,
+                // 这种就返回一个出错数据.
+                // 如果是管理员, 才允许查看所有用户的订单
                 if (user.getIsAdmin() == 0
                         && order.getUserId() != user.getUserId()) {
                     throw new OrderSystemException("当年您无权查看其他人的订单");
